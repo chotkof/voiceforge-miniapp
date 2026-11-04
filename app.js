@@ -18,9 +18,9 @@ const text = document.querySelector('#text');
 const counter = document.querySelector('#counter');
 const generate = document.querySelector('#generate');
 const studioStatus = document.querySelector('#studioStatus');
-// Telegram Desktop does not always expose query_id for a reply-keyboard
-// Mini App, even though sendData is available and the request is valid.
-const launchedFromBot = Boolean(tg?.sendData && tg?.initData && tg?.initDataUnsafe?.user?.id);
+// Telegram Desktop may omit parts of initData for a keyboard Mini App.
+// sendData itself is the capability that matters here.
+const launchedFromBot = Boolean(tg?.sendData);
 
 function setStatus(message) { studioStatus.textContent = message; }
 
