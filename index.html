@@ -12,38 +12,38 @@
 <body>
   <main class="app">
     <header class="hero">
-      <div class="mark">VF</div>
-      <div><p class="eyebrow">VOICEFORGE STUDIO</p><h1>Озвучь идею</h1></div>
-      <span class="online"><i></i> онлайн</span>
+      <div class="mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div><h1>VoiceForge</h1><p>Студия озвучки</p></div>
+      <span class="online">Онлайн</span>
     </header>
 
     <section class="card text-card">
-      <div class="section-title"><label for="text">Текст для озвучки</label><span id="counter">0 / 1000</span></div>
-      <textarea id="text" maxlength="1000" placeholder="Напишите текст так, как он должен прозвучать…"></textarea>
-      <div class="hint">Совет: используйте короткие абзацы и знаки препинания — речь будет естественнее.</div>
+      <div class="section-title"><label for="text">Текст</label><span id="counter">0 из 1000</span></div>
+      <textarea id="text" maxlength="1000" placeholder="Напишите текст для озвучки"></textarea>
+      <div class="hint">Абзацы и знаки препинания помогут сделать речь естественнее.</div>
     </section>
 
     <section class="card">
       <div class="section-title"><span>Голос</span><span class="choice" id="voiceChoice">Алиса</span></div>
       <div class="voice-grid" id="voices">
-        <button class="voice selected" data-voice="warm"><b>🌸 Алиса</b><small>Мягкий</small></button>
-        <button class="voice" data-voice="bright"><b>✨ Вера</b><small>Живой</small></button>
-        <button class="voice" data-voice="deep"><b>🎙 Максим</b><small>Уверенный</small></button>
-        <button class="voice" data-voice="neutral"><b>🗣 Андрей</b><small>Диктор</small></button>
+        <button class="voice selected" data-voice="warm"><b>Алиса</b><small>Мягкий женский голос</small></button>
+        <button class="voice" data-voice="bright"><b>Вера</b><small>Живой женский голос</small></button>
+        <button class="voice" data-voice="deep"><b>Максим</b><small>Уверенный мужской голос</small></button>
+        <button class="voice" data-voice="neutral"><b>Андрей</b><small>Ровный голос диктора</small></button>
       </div>
     </section>
 
     <section class="card">
       <div class="section-title"><span>Эмоциональность</span><span class="choice" id="emotionChoice">Нейтрально</span></div>
       <div class="chips" id="emotions">
-        <button class="chip selected" data-emotion="neutral">😐 Нейтрально</button>
-        <button class="chip" data-emotion="contentment">🌿 Спокойно</button>
-        <button class="chip" data-emotion="happy">😊 Радостно</button>
-        <button class="chip" data-emotion="enthusiasm">⚡ Энергично</button>
-        <button class="chip" data-emotion="determination">💪 Уверенно</button>
-        <button class="chip" data-emotion="anger">😠 Сердито</button>
-        <button class="chip" data-emotion="sadness">😔 Грустно</button>
-        <button class="chip" data-emotion="contemplation">🤔 Задумчиво</button>
+        <button class="chip selected" data-emotion="neutral">Нейтрально</button>
+        <button class="chip" data-emotion="contentment">Спокойно</button>
+        <button class="chip" data-emotion="happy">Радостно</button>
+        <button class="chip" data-emotion="enthusiasm">Энергично</button>
+        <button class="chip" data-emotion="determination">Уверенно</button>
+        <button class="chip" data-emotion="anger">Сердито</button>
+        <button class="chip" data-emotion="sadness">Грустно</button>
+        <button class="chip" data-emotion="contemplation">Задумчиво</button>
       </div>
     </section>
 
@@ -56,8 +56,8 @@
       </div>
     </section>
 
-    <p class="notice">Аудио появится в чате с ботом. Лимиты и подписка применяются автоматически.</p>
-    <button id="generate" class="generate"><span>🎙</span> Создать озвучку</button>
+    <p class="notice">Готовое аудио появится в этом чате. Лимиты применяются автоматически.</p>
+    <button id="generate" class="generate">Создать озвучку</button>
   </main>
   <script src="app.js"></script>
 </body>
