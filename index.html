@@ -12,24 +12,26 @@
 <body>
   <main class="app">
     <header class="hero">
-      <div class="mark" aria-hidden="true"><span></span><span></span><span></span></div>
-      <div><h1>VoiceForge</h1><p>Студия озвучки</p></div>
-      <span class="online">Онлайн</span>
+      <div class="brand-block">
+        <div class="mark" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        <div><p class="serial">VOICEFORGE / STUDIO 01</p><h1>Голос — это характер.</h1></div>
+      </div>
+      <span class="online">система готова</span>
     </header>
 
     <section class="card text-card">
-      <div class="section-title"><label for="text">Текст</label><span id="counter">0 из 1000</span></div>
+      <div class="section-title"><label for="text"><i>01</i> Текст</label><span id="counter">0 из 1000</span></div>
       <textarea id="text" maxlength="1000" placeholder="Напишите текст для озвучки"></textarea>
       <div class="hint">Абзацы и знаки препинания помогут сделать речь естественнее.</div>
     </section>
 
     <section class="card">
-      <div class="section-title"><span>Голос</span><span class="choice" id="voiceChoice">Алиса</span></div>
+      <div class="section-title"><span><i>02</i> Голос</span><span class="choice" id="voiceChoice">Алиса</span></div>
       <div class="voice-grid" id="voices"></div>
     </section>
 
     <section class="card">
-      <div class="section-title"><span>Эмоциональность</span><span class="choice" id="emotionChoice">Нейтрально</span></div>
+      <div class="section-title"><span><i>03</i> Подача</span><span class="choice" id="emotionChoice">Нейтрально</span></div>
       <div class="chips" id="emotions">
         <button class="chip selected" data-emotion="neutral">Нейтрально</button>
         <button class="chip" data-emotion="contentment">Спокойно</button>
@@ -43,7 +45,7 @@
     </section>
 
     <section class="card speed-card">
-      <div class="section-title"><span>Скорость речи</span><span class="choice" id="speedChoice">1.0×</span></div>
+      <div class="section-title"><span><i>04</i> Темп</span><span class="choice" id="speedChoice">1.0×</span></div>
       <div class="segmented" id="speeds">
         <button class="selected" data-speed="1.0">Спокойно<br><b>1.0×</b></button>
         <button data-speed="1.2">Быстрее<br><b>1.2×</b></button>
@@ -51,8 +53,8 @@
       </div>
     </section>
 
-    <p class="notice">Готовое аудио появится в этом чате. Лимиты применяются автоматически.</p>
-    <button id="generate" class="generate">Создать озвучку</button>
+    <p class="notice">Аудио придёт в этот чат. Настройки можно менять перед каждой генерацией.</p>
+    <button id="generate" class="generate"><span>СОЗДАТЬ АУДИО</span><b>→</b></button>
   </main>
   <script src="community-voices.js"></script>
   <script src="app.js"></script>
