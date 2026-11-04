@@ -62,10 +62,9 @@ generate.addEventListener('click', () => {
   const payload = JSON.stringify({ action: 'tts', text: value, ...state });
   if (tg?.sendData) {
     generate.disabled = true;
-    generate.innerHTML = '<span>ЗАПРОС ОТПРАВЛЕН</span><b>✓</b>';
-    setStatus('Возвращаю в чат — там появится статус генерации.');
+    generate.innerHTML = '<span>ОТПРАВЛЯЮ ЗАПРОС</span><b>→</b>';
+    setStatus('Передаю настройки в VoiceForge. Не закрывайте Studio вручную — бот подтвердит приём в чате.');
     tg.sendData(payload);
-    window.setTimeout(() => tg.close?.(), 500);
   } else {
     setStatus('Откройте Studio кнопкой внутри Telegram-бота.');
   }
