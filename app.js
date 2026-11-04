@@ -18,7 +18,10 @@ const text = document.querySelector('#text');
 const counter = document.querySelector('#counter');
 const generate = document.querySelector('#generate');
 const studioStatus = document.querySelector('#studioStatus');
-const launchedFromBot = Boolean(tg?.initData && tg?.initDataUnsafe?.user?.id);
+// sendData reaches a bot only when the page was opened by that bot's Web App
+// button. A plain Telegram/browser link can still expose parts of WebApp,
+// but has no query identifier to deliver the service message.
+const launchedFromBot = Boolean(tg?.sendData && tg?.initData && tg?.initDataUnsafe?.user?.id && tg?.initDataUnsafe?.query_id);
 
 function setStatus(message) { studioStatus.textContent = message; }
 
@@ -56,15 +59,26 @@ generate.addEventListener('click', () => {
   const value = text.value.trim();
   if (!value) { tg?.showAlert?.('Введите текст для озвучки.'); text.focus(); return; }
   if (!launchedFromBot) {
-    setStatus('Откройте Studio кнопкой «Открыть VoiceForge Studio» внутри @voicerrr_bot — так бот сможет получить запрос и отправить аудио.');
+    setStatus('Studio открыта как обычная ссылка и не может передать текст боту. Вернитесь в @voicerrr_bot и откройте её кнопкой «✨ Открыть VoiceForge Studio».');
     return;
   }
   const payload = JSON.stringify({ action: 'tts', text: value, ...state });
   if (tg?.sendData) {
     generate.disabled = true;
-    generate.innerHTML = '<span>ОТПРАВЛЯЮ ЗАПРОС</span><b>→</b>';
-    setStatus('Передаю настройки в VoiceForge. Не закрывайте Studio вручную — бот подтвердит приём в чате.');
-    tg.sendData(payload);
+    generate.innerHTML = '<span>ПЕРЕДАЮ В БОТ</span><b>→</b>';
+    setStatus('Передаю настройки в VoiceForge…');
+    try {
+      tg.sendData(payload);
+      window.setTimeout(() => {
+        generate.disabled = false;
+        generate.innerHTML = '<span>СОЗДАТЬ АУДИО</span><b>→</b>';
+        setStatus('Telegram не подтвердил передачу. Закройте Studio, откройте её именно кнопкой в @voicerrr_bot и повторите попытку.');
+      }, 4500);
+    } catch (_) {
+      generate.disabled = false;
+      generate.innerHTML = '<span>СОЗДАТЬ АУДИО</span><b>→</b>';
+      setStatus('Не удалось передать запрос в Telegram. Откройте Studio кнопкой внутри @voicerrr_bot.');
+    }
   } else {
     setStatus('Откройте Studio кнопкой внутри Telegram-бота.');
   }
