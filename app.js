@@ -1,0 +1,34 @@
+const tg = window.Telegram?.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+const state = { voice: 'warm', emotion: 'neutral', speed: '1.0' };
+const voiceNames = { warm: 'Алиса', bright: 'Вера', deep: 'Максим', neutral: 'Андрей' };
+const emotionNames = { neutral: 'Нейтрально', contentment: 'Спокойно', happy: 'Радостно', enthusiasm: 'Энергично', determination: 'Уверенно', anger: 'Сердито', sadness: 'Грустно', contemplation: 'Задумчиво' };
+const text = document.querySelector('#text');
+const counter = document.querySelector('#counter');
+const generate = document.querySelector('#generate');
+
+function choose(container, attribute, value) {
+  state[attribute] = value;
+  document.querySelectorAll(`${container} [data-${attribute}]`).forEach(item => item.classList.toggle('selected', item.dataset[attribute] === value));
+}
+document.querySelector('#voices').addEventListener('click', event => {
+  const button = event.target.closest('[data-voice]'); if (!button) return;
+  choose('#voices', 'voice', button.dataset.voice); document.querySelector('#voiceChoice').textContent = voiceNames[state.voice];
+});
+document.querySelector('#emotions').addEventListener('click', event => {
+  const button = event.target.closest('[data-emotion]'); if (!button) return;
+  choose('#emotions', 'emotion', button.dataset.emotion); document.querySelector('#emotionChoice').textContent = emotionNames[state.emotion];
+});
+document.querySelector('#speeds').addEventListener('click', event => {
+  const button = event.target.closest('[data-speed]'); if (!button) return;
+  choose('#speeds', 'speed', button.dataset.speed); document.querySelector('#speedChoice').textContent = `${state.speed}×`;
+});
+text.addEventListener('input', () => { counter.textContent = `${text.value.length} / 1000`; });
+generate.addEventListener('click', () => {
+  const value = text.value.trim();
+  if (!value) { tg?.showAlert?.('Введите текст для озвучки.'); text.focus(); return; }
+  const payload = JSON.stringify({ action: 'tts', text: value, ...state });
+  if (tg?.sendData) { generate.disabled = true; generate.textContent = 'Отправляю в VoiceForge…'; tg.sendData(payload); }
+  else { alert('Откройте Studio кнопкой внутри Telegram-бота.'); }
+});
