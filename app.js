@@ -17,6 +17,10 @@ const emotionNames = { neutral: 'Нейтрально', contentment: 'Споко
 const text = document.querySelector('#text');
 const counter = document.querySelector('#counter');
 const generate = document.querySelector('#generate');
+const studioStatus = document.querySelector('#studioStatus');
+const launchedFromBot = Boolean(tg?.initData && tg?.initDataUnsafe?.user?.id);
+
+function setStatus(message) { studioStatus.textContent = message; }
 
 function choose(container, attribute, value) {
   state[attribute] = value;
@@ -51,7 +55,18 @@ text.addEventListener('input', () => { counter.textContent = `${text.value.lengt
 generate.addEventListener('click', () => {
   const value = text.value.trim();
   if (!value) { tg?.showAlert?.('Введите текст для озвучки.'); text.focus(); return; }
+  if (!launchedFromBot) {
+    setStatus('Откройте Studio кнопкой «Открыть VoiceForge Studio» внутри @voicerrr_bot — так бот сможет получить запрос и отправить аудио.');
+    return;
+  }
   const payload = JSON.stringify({ action: 'tts', text: value, ...state });
-  if (tg?.sendData) { generate.disabled = true; generate.textContent = 'Отправляю в VoiceForge…'; tg.sendData(payload); }
-  else { alert('Откройте Studio кнопкой внутри Telegram-бота.'); }
+  if (tg?.sendData) {
+    generate.disabled = true;
+    generate.innerHTML = '<span>ЗАПРОС ОТПРАВЛЕН</span><b>✓</b>';
+    setStatus('Возвращаю в чат — там появится статус генерации.');
+    tg.sendData(payload);
+    window.setTimeout(() => tg.close?.(), 500);
+  } else {
+    setStatus('Откройте Studio кнопкой внутри Telegram-бота.');
+  }
 });
