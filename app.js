@@ -2,7 +2,17 @@ const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
 
 const state = { voice: 'warm', emotion: 'neutral', speed: '1.0' };
-const voiceNames = { warm: 'Алиса', bright: 'Вера', deep: 'Максим', neutral: 'Андрей' };
+const baseVoices = [
+  { id: 'warm', name: 'Алиса', description: 'Мягкий женский голос' },
+  { id: 'bright', name: 'Вера', description: 'Живой женский голос' },
+  { id: 'deep', name: 'Максим', description: 'Уверенный мужской голос' },
+  { id: 'neutral', name: 'Андрей', description: 'Ровный голос диктора' },
+];
+const communityVoices = Array.isArray(window.COMMUNITY_VOICES) ? window.COMMUNITY_VOICES : [];
+const voiceNames = Object.fromEntries([
+  ...baseVoices.map(voice => [voice.id, voice.name]),
+  ...communityVoices.map(voice => [`clone:${voice.id}`, voice.name]),
+]);
 const emotionNames = { neutral: 'Нейтрально', contentment: 'Спокойно', happy: 'Радостно', enthusiasm: 'Энергично', determination: 'Уверенно', anger: 'Сердито', sadness: 'Грустно', contemplation: 'Задумчиво' };
 const text = document.querySelector('#text');
 const counter = document.querySelector('#counter');
@@ -12,6 +22,19 @@ function choose(container, attribute, value) {
   state[attribute] = value;
   document.querySelectorAll(`${container} [data-${attribute}]`).forEach(item => item.classList.toggle('selected', item.dataset[attribute] === value));
 }
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+}
+function renderVoices() {
+  const root = document.querySelector('#voices');
+  const cards = baseVoices.map(voice => `<button class="voice ${voice.id === state.voice ? 'selected' : ''}" data-voice="${voice.id}"><b>${escapeHtml(voice.name)}</b><small>${escapeHtml(voice.description)}</small></button>`);
+  if (communityVoices.length) {
+    cards.push('<div class="voice-divider">Голоса сообщества</div>');
+    cards.push(...communityVoices.map(voice => `<button class="voice community" data-voice="clone:${Number(voice.id)}"><b>${escapeHtml(voice.name)}</b><small>Одобрен модераторами</small></button>`));
+  }
+  root.innerHTML = cards.join('');
+}
+renderVoices();
 document.querySelector('#voices').addEventListener('click', event => {
   const button = event.target.closest('[data-voice]'); if (!button) return;
   choose('#voices', 'voice', button.dataset.voice); document.querySelector('#voiceChoice').textContent = voiceNames[state.voice];
