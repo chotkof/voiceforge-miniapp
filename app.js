@@ -18,10 +18,9 @@ const text = document.querySelector('#text');
 const counter = document.querySelector('#counter');
 const generate = document.querySelector('#generate');
 const studioStatus = document.querySelector('#studioStatus');
-// sendData reaches a bot only when the page was opened by that bot's Web App
-// button. A plain Telegram/browser link can still expose parts of WebApp,
-// but has no query identifier to deliver the service message.
-const launchedFromBot = Boolean(tg?.sendData && tg?.initData && tg?.initDataUnsafe?.user?.id && tg?.initDataUnsafe?.query_id);
+// Telegram Desktop does not always expose query_id for a reply-keyboard
+// Mini App, even though sendData is available and the request is valid.
+const launchedFromBot = Boolean(tg?.sendData && tg?.initData && tg?.initDataUnsafe?.user?.id);
 
 function setStatus(message) { studioStatus.textContent = message; }
 
