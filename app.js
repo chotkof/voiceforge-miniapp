@@ -1,5 +1,8 @@
 const tg = window.Telegram?.WebApp;
 if (tg) { tg.ready(); tg.expand(); }
+const miniAppAvailable = Boolean(tg?.sendData);
+document.body.classList.remove('access-pending');
+document.body.classList.toggle('access-locked', !miniAppAvailable);
 
 const state = { voice: 'warm', emotion: 'neutral', speed: '1.0' };
 const baseVoices = [
@@ -20,7 +23,7 @@ const generate = document.querySelector('#generate');
 const studioStatus = document.querySelector('#studioStatus');
 // Telegram Desktop may omit parts of initData for a keyboard Mini App.
 // sendData itself is the capability that matters here.
-const launchedFromBot = Boolean(tg?.sendData);
+const launchedFromBot = miniAppAvailable;
 
 function setStatus(message) { studioStatus.textContent = message; }
 
