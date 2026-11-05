@@ -6,7 +6,7 @@
     {
       "binding": "VOICEFORGE_DB",
       "database_name": "voiceforge-voices",
-      "database_id": "REPLACE_AFTER_D1_CREATE"
+      "database_id": "d17a7ffb-a2d2-4031-b5f2-77e43b135df4"
     }
   ]
 }

@@ -49,6 +49,25 @@ export default {
     const origin = request.headers.get('Origin') || '';
     if (request.method === 'OPTIONS') return new Response(null, { headers: cors(origin) });
     const url = new URL(request.url);
+    if (request.method === 'POST' && url.pathname === '/api/sync') {
+      const authorization = request.headers.get('Authorization') || '';
+      if (authorization !== `Bearer ${env.TELEGRAM_BOT_TOKEN}`) return response({ error: 'Unauthorized' }, 401, origin);
+      let voice;
+      try { voice = await request.json(); } catch { return response({ error: 'Invalid JSON' }, 400, origin); }
+      const id = Number(voice.id);
+      const ownerId = String(voice.owner_id || '');
+      const name = String(voice.name || '').trim();
+      const status = String(voice.status || '');
+      if (!Number.isInteger(id) || !ownerId || !name) return response({ error: 'Invalid voice' }, 400, origin);
+      if (status !== 'personal' && status !== 'public') {
+        await env.VOICEFORGE_DB.prepare('DELETE FROM voices WHERE id = ?').bind(id).run();
+        return response({ ok: true, removed: true }, 200, origin);
+      }
+      await env.VOICEFORGE_DB.prepare(
+        'INSERT INTO voices(id, owner_id, name, status, updated_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET owner_id=excluded.owner_id, name=excluded.name, status=excluded.status, updated_at=excluded.updated_at'
+      ).bind(id, ownerId, name.slice(0, 64), status, Date.now()).run();
+      return response({ ok: true }, 200, origin);
+    }
     if (request.method !== 'POST' || url.pathname !== '/api/voices') return response({ error: 'Not found' }, 404, origin);
     let body;
     try { body = await request.json(); } catch { return response({ error: 'Invalid JSON' }, 400, origin); }
