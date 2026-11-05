@@ -12,10 +12,15 @@ const baseVoices = [
   { id: 'neutral', name: 'Андрей', description: 'Ровный голос диктора' },
 ];
 const communityVoices = Array.isArray(window.COMMUNITY_VOICES) ? window.COMMUNITY_VOICES : [];
-const voiceNames = Object.fromEntries([
-  ...baseVoices.map(voice => [voice.id, voice.name]),
-  ...communityVoices.map(voice => [`clone:${voice.id}`, voice.name]),
-]);
+let personalVoices = [];
+const apiUrl = String(window.VOICEFORGE_API_URL || '').replace(/\/$/, '');
+function refreshVoiceNames() {
+  return Object.fromEntries([
+    ...baseVoices.map(voice => [voice.id, voice.name]),
+    ...personalVoices.map(voice => [`clone:${voice.id}`, voice.name]),
+    ...communityVoices.map(voice => [`clone:${voice.id}`, voice.name]),
+  ]);
+}
 const emotionNames = { neutral: 'Нейтрально', contentment: 'Спокойно', happy: 'Радостно', enthusiasm: 'Энергично', determination: 'Уверенно', anger: 'Сердито', sadness: 'Грустно', contemplation: 'Задумчиво' };
 const text = document.querySelector('#text');
 const counter = document.querySelector('#counter');
@@ -37,6 +42,10 @@ function escapeHtml(value) {
 function renderVoices() {
   const root = document.querySelector('#voices');
   const cards = baseVoices.map(voice => `<button class="voice ${voice.id === state.voice ? 'selected' : ''}" data-voice="${voice.id}"><b>${escapeHtml(voice.name)}</b><small>${escapeHtml(voice.description)}</small></button>`);
+  if (personalVoices.length) {
+    cards.push('<div class="voice-divider">Мои голоса</div>');
+    cards.push(...personalVoices.map(voice => `<button class="voice personal ${`clone:${voice.id}` === state.voice ? 'selected' : ''}" data-voice="clone:${Number(voice.id)}"><b>${escapeHtml(voice.name)}</b><small>Доступен только вам</small></button>`));
+  }
   if (communityVoices.length) {
     cards.push('<div class="voice-divider">Голоса сообщества</div>');
     cards.push(...communityVoices.map(voice => `<button class="voice community" data-voice="clone:${Number(voice.id)}"><b>${escapeHtml(voice.name)}</b><small>Одобрен модераторами</small></button>`));
@@ -46,7 +55,7 @@ function renderVoices() {
 renderVoices();
 document.querySelector('#voices').addEventListener('click', event => {
   const button = event.target.closest('[data-voice]'); if (!button) return;
-  choose('#voices', 'voice', button.dataset.voice); document.querySelector('#voiceChoice').textContent = voiceNames[state.voice];
+  choose('#voices', 'voice', button.dataset.voice); document.querySelector('#voiceChoice').textContent = refreshVoiceNames()[state.voice];
 });
 document.querySelector('#emotions').addEventListener('click', event => {
   const button = event.target.closest('[data-emotion]'); if (!button) return;
@@ -57,6 +66,24 @@ document.querySelector('#speeds').addEventListener('click', event => {
   choose('#speeds', 'speed', button.dataset.speed); document.querySelector('#speedChoice').textContent = `${state.speed}×`;
 });
 text.addEventListener('input', () => { counter.textContent = `${text.value.length} / 1000`; });
+
+async function loadPersonalVoices() {
+  if (!apiUrl || !tg?.initData) return;
+  try {
+    const response = await fetch(`${apiUrl}/api/voices`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ initData: tg.initData }),
+    });
+    if (!response.ok) return;
+    const data = await response.json();
+    personalVoices = Array.isArray(data.voices) ? data.voices.filter(voice => voice.personal) : [];
+    renderVoices();
+  } catch (_) {
+    // The Studio stays usable if the optional personal-voices API is offline.
+  }
+}
+loadPersonalVoices();
 generate.addEventListener('click', () => {
   const value = text.value.trim();
   if (!value) { tg?.showAlert?.('Введите текст для озвучки.'); text.focus(); return; }

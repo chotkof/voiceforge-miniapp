@@ -1,0 +1,12 @@
+{
+  "name": "voiceforge-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-11-05",
+  "d1_databases": [
+    {
+      "binding": "VOICEFORGE_DB",
+      "database_name": "voiceforge-voices",
+      "database_id": "REPLACE_AFTER_D1_CREATE"
+    }
+  ]
+}

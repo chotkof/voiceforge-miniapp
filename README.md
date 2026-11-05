@@ -11,3 +11,10 @@ VOICEFORGE_WEBAPP_URL=https://<github-user>.github.io/voiceforge-miniapp/
 ```
 
 После изменения перезапустите `VoiceForgeBot`.
+# VoiceForge Mini App
+
+## Personal voices API
+
+The `worker/` folder is a Cloudflare Worker that verifies Telegram Mini App sessions and returns each user's personal voices together with public ones. The app only activates this API after `config.js` has a deployed Worker URL.
+
+Deployment requires a Cloudflare account, a D1 database, and the `TELEGRAM_BOT_TOKEN` Worker secret. The bot's local SQLite data is never exposed to a browser.
