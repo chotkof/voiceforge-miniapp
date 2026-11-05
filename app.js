@@ -69,7 +69,9 @@ document.querySelector('#speeds').addEventListener('click', event => {
 text.addEventListener('input', () => { counter.textContent = `${text.value.length} / 1000`; });
 
 async function loadPersonalVoices() {
-  if (!apiUrl || !tg?.initData) return;
+  // Telegram Desktop may not provide initData for a reply-keyboard Mini App.
+  // In that case the bot issues a short-lived personal session in the URL.
+  if (!apiUrl || (!tg?.initData && !personalSession)) return;
   try {
     const response = await fetch(`${apiUrl}/api/voices`, {
       method: 'POST',
