@@ -26,6 +26,7 @@ const emotionNames = { neutral: 'Нейтрально', contentment: 'Споко
 const text = document.querySelector('#text');
 const counter = document.querySelector('#counter');
 const generate = document.querySelector('#generate');
+const createVoice = document.querySelector('#createVoice');
 const studioStatus = document.querySelector('#studioStatus');
 // Telegram Desktop may omit parts of initData for a keyboard Mini App.
 // sendData itself is the capability that matters here.
@@ -87,6 +88,19 @@ async function loadPersonalVoices() {
   }
 }
 loadPersonalVoices();
+createVoice.addEventListener('click', () => {
+  if (!launchedFromBot) {
+    setStatus('Откройте Studio кнопкой внутри @voicerrr_bot, чтобы создать голос.');
+    return;
+  }
+  createVoice.disabled = true;
+  try {
+    tg.sendData(JSON.stringify({ action: 'clone_start' }));
+  } catch (_) {
+    createVoice.disabled = false;
+    setStatus('Не удалось начать создание голоса. Повторите попытку из чата с ботом.');
+  }
+});
 generate.addEventListener('click', () => {
   const value = text.value.trim();
   if (!value) { tg?.showAlert?.('Введите текст для озвучки.'); text.focus(); return; }
