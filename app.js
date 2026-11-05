@@ -14,6 +14,7 @@ const baseVoices = [
 const communityVoices = Array.isArray(window.COMMUNITY_VOICES) ? window.COMMUNITY_VOICES : [];
 let personalVoices = [];
 const apiUrl = String(window.VOICEFORGE_API_URL || '').replace(/\/$/, '');
+const personalSession = new URLSearchParams(window.location.search).get('session') || '';
 function refreshVoiceNames() {
   return Object.fromEntries([
     ...baseVoices.map(voice => [voice.id, voice.name]),
@@ -73,7 +74,7 @@ async function loadPersonalVoices() {
     const response = await fetch(`${apiUrl}/api/voices`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ initData: tg.initData }),
+      body: JSON.stringify({ initData: tg.initData, session: personalSession }),
     });
     if (!response.ok) return;
     const data = await response.json();

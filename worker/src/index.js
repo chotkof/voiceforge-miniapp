@@ -68,14 +68,34 @@ export default {
       ).bind(id, ownerId, name.slice(0, 64), status, Date.now()).run();
       return response({ ok: true }, 200, origin);
     }
+    if (request.method === 'POST' && url.pathname === '/api/session') {
+      const authorization = request.headers.get('Authorization') || '';
+      if (authorization !== `Bearer ${env.TELEGRAM_BOT_TOKEN}`) return response({ error: 'Unauthorized' }, 401, origin);
+      let session;
+      try { session = await request.json(); } catch { return response({ error: 'Invalid JSON' }, 400, origin); }
+      const token = String(session.token || '');
+      const ownerId = String(session.owner_id || '');
+      const expiresAt = Number(session.expires_at || 0);
+      if (token.length < 32 || !ownerId || !Number.isSafeInteger(expiresAt) || expiresAt <= Date.now()) return response({ error: 'Invalid session' }, 400, origin);
+      await env.VOICEFORGE_DB.batch([
+        env.VOICEFORGE_DB.prepare('DELETE FROM miniapp_sessions WHERE expires_at <= ?').bind(Date.now()),
+        env.VOICEFORGE_DB.prepare('INSERT INTO miniapp_sessions(token, owner_id, expires_at) VALUES (?, ?, ?) ON CONFLICT(token) DO UPDATE SET owner_id=excluded.owner_id, expires_at=excluded.expires_at').bind(token, ownerId, expiresAt),
+      ]);
+      return response({ ok: true }, 200, origin);
+    }
     if (request.method !== 'POST' || url.pathname !== '/api/voices') return response({ error: 'Not found' }, 404, origin);
     let body;
     try { body = await request.json(); } catch { return response({ error: 'Invalid JSON' }, 400, origin); }
     const user = await verifyTelegramInitData(String(body.initData || ''), env.TELEGRAM_BOT_TOKEN);
-    if (!user?.id) return response({ error: 'Telegram session verification failed' }, 401, origin);
+    let ownerId = user?.id ? String(user.id) : '';
+    if (!ownerId && body.session) {
+      const session = await env.VOICEFORGE_DB.prepare('SELECT owner_id FROM miniapp_sessions WHERE token = ? AND expires_at > ?').bind(String(body.session), Date.now()).first();
+      ownerId = session?.owner_id || '';
+    }
+    if (!ownerId) return response({ error: 'Telegram session verification failed' }, 401, origin);
     const { results = [] } = await env.VOICEFORGE_DB.prepare(
       'SELECT id, name, status FROM voices WHERE status = ? OR owner_id = ? ORDER BY status DESC, updated_at DESC'
-    ).bind('public', String(user.id)).all();
+    ).bind('public', ownerId).all();
     return response({ voices: results.map(voice => ({ id: voice.id, name: voice.name, personal: voice.status === 'personal' })) }, 200, origin);
   },
 };
